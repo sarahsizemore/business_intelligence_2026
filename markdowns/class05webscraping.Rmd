@@ -1,0 +1,75 @@
+---
+title: "Class 05 Web Scraping"
+author: "Sarah Sizemore"
+date: "2026-02-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## BLS Scrape Example
+```{r bls_scrape}
+
+#step 0: 
+
+#step 1:
+
+robotstxt::paths_allowed(
+  paths = "/emp",
+  domain = "https://www.bls.gov/"
+)
+
+robotstxt::paths_allowed(
+  paths = "/emp/tables/",
+  domain = "https://www.bls.gov/"
+)
+
+# Step 1:
+
+resp =httr2::request(
+  "https://www.bls.gov/emp/tables/fastest-growing-occupations.htm"
+) |>
+  httr2::req_user_agent("An ISA 401 Bot from Miami Universty") |>
+  httr2::req_perform()
+
+bls_webpage = resp|> httr2::resp_body_raw() |> rvest::read_html()
+bls_webpage
+
+
+# Step 2: which is to utilize CSS selectors to just focus on the table
+
+bls_webpage |>
+  rvest::html_element(css = "#BLStable_2025_7_18_12_5") -> bls_table_element
+
+
+# Step 3: extract the table / clean it (i.e., make it human readble)
+
+bls_table <- bls_table_element |>
+  rvest::html_table()
+
+bls_table
+
+bls_table_clean = bls_table[[1]]
+
+# DISCLAIMER: YOU MIGHT HATE THAT THERE ARE NO SINGLE RIGHT WAYS FOR THE SELECTOR
+
+bls_webpage |>
+  rvest::html_elements("table") |>
+  rvest::html_table() |>
+  magrittr::extract2(1) -> #extract2 is equivalent to my [[]]; 1 is first sublist
+  tbl_b
+
+bls_webpage |>
+  rvest::html_elements("table") |>
+  rvest::html_table() |>
+  magrittr::extract2(1) -> #extract2 is equivalent to my [[]]; 1 is first sublist
+  tbl_c
+
+bls_webpage |>
+  rvest::html_elements("table") |>
+  rvest::html_table() |>
+  magrittr::extract2(1) -> #extract2 is equivalent to my [[]]; 1 is first sublist
+  tbl_d
+```
